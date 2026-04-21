@@ -24,7 +24,7 @@ connectCloudinary();
 const app = express();
 app.use(cors());
 
-// Stripe Webhook (IMPORTANT: raw body)
+// Stripe Webhook (raw body required)
 app.post("/api/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
 // Middleware
@@ -43,15 +43,11 @@ app.use("/api/bookings", bookingRouter);
 // Serve React frontend
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-// ✅ FIXED: catch-all route (NO "*")
-app.get("/*", (req, res) => {
+// ✅ FINAL FIX: catch-all (NO "*" or "/*")
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
-// OR you can use this instead (even safer):
-// app.use((req, res) => {
-//   res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-// });
-
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
